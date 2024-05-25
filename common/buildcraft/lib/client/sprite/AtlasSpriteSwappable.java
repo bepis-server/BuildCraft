@@ -107,6 +107,10 @@ public abstract class AtlasSpriteSwappable extends TextureAtlasSprite {
         boolean careIfMissing) {
         // Load the initial variant
         TextureAtlasSprite sprite = makeAtlasSprite(new ResourceLocation(name));
+        return loadSpriteInto(sprite, manager, location, careIfMissing) ? sprite : null;
+    }
+
+    public static boolean loadSpriteInto(TextureAtlasSprite sprite, IResourceManager manager, ResourceLocation location, boolean careIfMissing) {
         try {
             // Copied almost directly from TextureMap.
             PngSizeInfo pngsizeinfo = PngSizeInfo.makeFromResource(manager.getResource(location));
@@ -114,14 +118,15 @@ public abstract class AtlasSpriteSwappable extends TextureAtlasSprite {
                 boolean flag = iresource.getMetadata("animation") != null;
                 sprite.loadSprite(pngsizeinfo, flag);
                 sprite.loadSpriteFrames(iresource, Minecraft.getMinecraft().gameSettings.mipmapLevels + 1);
-                return sprite;
+                return true;
             }
         } catch (IOException io) {
             if (careIfMissing) {
                 // Do the same as forge - track the missing texture for later rather than printing out the error.
                 FMLClientHandler.instance().trackMissingTexture(location);
             }
-            return null;
+            io.printStackTrace();
+            return false;
         }
     }
 
